@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/emotion-react/11.11.1/emotion-react.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/emotion-styled/11.11.0/emotion-styled.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.14.18/umd/material-ui.production.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      height: 100%;
+      overflow-y: scroll;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    body::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { 
+  Button, Typography, Box, CircularProgress, Stack, 
+  Divider, Paper, Snackbar, Alert 
+} = window.MaterialUI;
+
+function App() {
+  const [loading, setLoading] = React.useState(false);
+  const [status, setStatus] = React.useState('');
+  const [toast, setToast] = React.useState(false);
+
+  // 🎯 Logo-based colors
+  const slate = "#1e2a38";   // dark blue
+  const gold = "#c59d5f";    // gold
+
+  const runAnalysis = () => {
+    setLoading(true);
+    setStatus('Processing Data...');
+
+    google.script.run
+      .withSuccessHandler(() => {
+        setLoading(false);
+        setStatus('Analysis Complete');
+        setToast(true);
+      })
+      .withFailureHandler((err) => {
+        setLoading(false);
+        setStatus('Error: ' + err.message);
+      })
+      .runFullBusinessAnalysis();
+  };
+
+  return (
+    <Box sx={{ fontFamily: 'Roboto', color: slate }}>
+
+      {/* HEADER */}
+      <Box sx={{ 
+        position: 'sticky', top: 0, zIndex: 1000,
+        bgcolor: '#ffffff', py: 2, textAlign: 'center',
+        borderBottom: `2px solid ${gold}`
+      }}>
+        <Box 
+          component="img" 
+          src="https://image2url.com/r2/default/images/1774798498637-a2f09672-558c-42c9-a442-f7f831c88928.png"
+          sx={{ width: 200 }}
+        />
+      </Box>
+
+      <Box sx={{ p: 1.5 }}>
+
+        {/* FEATURES */}
+        <Typography sx={{
+          fontSize: '9px',
+          fontWeight: 800,
+          textTransform: 'uppercase',
+          mb: 1.5
+        }}>
+          System Capabilities
+        </Typography>
+
+        <Stack spacing={1} sx={{ mb: 3 }}>
+          {[
+            { t: 'Predictive Analytics', i: 'insights' },
+            { t: 'Property Management', i: 'domain' },
+            { t: 'Automated Reporting', i: 'analytics' }
+          ].map((item, idx) => (
+            <Paper key={idx} sx={{
+              p: 1.4,
+              display: 'flex',
+              alignItems: 'center',
+              borderRadius: '8px',
+              border: '1px solid rgba(0,0,0,0.05)',
+              transition: '0.2s',
+              '&:hover': {
+                boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+                transform: 'translateY(-2px)'
+              }
+            }}>
+              <span className="material-icons" style={{
+                color: gold,
+                marginRight: '12px'
+              }}>
+                {item.i}
+              </span>
+
+              <Typography sx={{
+                fontSize: '12px',
+                fontWeight: 700
+              }}>
+                {item.t}
+              </Typography>
+            </Paper>
+          ))}
+        </Stack>
+
+        <Divider sx={{ mb: 2 }} />
+
+        {/* BUTTON */}
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={runAnalysis}
+          disabled={loading}
+          sx={{
+            bgcolor: slate,
+            fontWeight: 700,
+            padding:1.5,
+            fontSize: '12px',
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#16202a' }
+          }}
+        >
+          {loading ? <CircularProgress size={18} color="inherit"/> : 'Generate Strategic Report'}
+        </Button>
+
+        {/* STATUS */}
+        <Box sx={{
+          mt: 2,
+          p: 1.5,
+          bgcolor: '#111',
+          borderRadius: '6px',
+          borderLeft: `4px solid ${gold}`
+        }}>
+          <Typography sx={{
+            fontSize: '10px',
+            color: '#90caf9'
+          }}>
+            {status || 'System Idle'}
+          </Typography>
+        </Box>
+
+      </Box>
+
+      {/* TOAST */}
+      <Snackbar
+        open={toast}
+        autoHideDuration={2500}
+        onClose={() => setToast(false)}
+      >
+        <Alert severity="success" sx={{ bgcolor: gold, color: '#fff' }}>
+          Done
+        </Alert>
+      </Snackbar>
+
+    </Box>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body>
+</html>
